@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id  Int @id @default(autoincrement())
+  role Role @default(USER)
+  nickName String @db.VarChar(20) @unique
+  email String @db.VarChar(20) @unique
+  password String
+  createAt DateTime @default(now())
+  grade Grade @default(NOMAL)
+  Like Like[]
+  Participate Participate[]
+  Application Application[]
+  Feedback Feedback[]
+  Work Work[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Grade {
+  NOMAL
+  EXPERT
+}
+
+model Challenge {
+  id Int @id @default(autoincrement())
+  title String @db.VarChar(200)
+  link String
+  field Field
+  docType DocType
+  deadLine DateTime @default(now())
+  progress Boolean @default(false)
+  participants Int @default(1)
+  maxParticipants Int
+  content String
+  Participate Participate[]
+  Application Application?
+  Work Work?
+} 
+
+enum Field {
+  NEXT
+  JS
+  API
+  WEB
+  CAREER
+}
+
+enum DocType {
+  DOCUMENT
+  BLOG
+}
+
+model Like {
+  id Int @id @default(autoincrement())
+  userId Int @unique
+  User User @relation(fields: [userId], references: [id])
+  Work Work?
+}
+
+model Participate {
+  id Int @id @default(autoincrement())
+  userId Int @unique
+  User User @relation(fields: [userId], references: [id])
+  challengeId Int @unique
+  Challenge Challenge @relation(fields: [challengeId], references: [id])
+}
+
+model Application {
+  id Int @id @default(autoincrement())
+  userId Int @unique
+  User User @relation(fields: [userId], references: [id])
+  challengeId Int @unique
+  Challenge Challenge @relation(fields: [challengeId], references: [id])
+  status Status @default(WAITING)
+  appliedAt DateTime @default(now())
+  refuseReasons String?
+  refuseAt DateTime @default(now())
+}
+
+enum Status {
+  REFUSE
+  SUCCESS
+  WAITING
+}
+
+model Feedback {
+  id Int @id @default(autoincrement())
+  userId Int @unique
+  User User @relation(fields: [userId], references: [id])
+  workId Int @unique
+  Work Work @relation(fields: [workId], references: [id])
+  content String
+  createdAt DateTime @default(now())
+}
+
+model Work {
+  id Int @id @default(autoincrement())
+  userId Int @unique
+  User User @relation(fields: [userId], references: [id])
+  challengeId Int @unique
+  Challenge Challenge @relation(fields: [challengeId], references: [id])
+  likeId Int @unique
+  Like Like @relation(fields: [likeId], references: [id])
+  description String
+  lastModifiedAt DateTime @updatedAt
+  status Boolean
+  submissionTime DateTime
+  Feedback Feedback[]
+}
