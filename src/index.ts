@@ -4,21 +4,21 @@ import "dotenv/config";
 import jwt from "jsonwebtoken";
 import { Secret } from "jsonwebtoken";
 import auth from "./authMiddleware";
+import challenges from "./challenges";
 
 const prisma = new PrismaClient();
 const app = express();
 app.use(express.json());
-
 const key = process.env.SECRET_KEY as Secret;
 
-app.post("/users", async (req, res, next) => {
+app.post("/users", async (req, res) => {
     const { nickName, email, password } = req.body;
 
     const user = await prisma.user.findUnique({
-        where: { email: email },
+        where: { email },
     });
     const nickname = await prisma.user.findUnique({
-        where: { nickName: nickName },
+        where: { nickName },
     });
     if (user)
         return res.status(400).json({
@@ -43,29 +43,21 @@ app.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     const user = await prisma.user.findUnique({
-        where: { email: email, password: password },
+        where: { email, password },
     });
     if (!user) return res.status(400).json({ message: "no user" });
-    let token = jwt.sign(
-        { type: "JWT", nickname: user.nickName, role: user.role },
-        key,
-        {
-            expiresIn: "60m",
-            issuer: "accept",
-        }
-    );
+    let token = jwt.sign({ type: "JWT", id: user.id, role: user.role }, key, {
+        expiresIn: "60m",
+        issuer: "accept",
+    });
     return res.status(200).json(token);
 });
 
 app.post("/logout", auth, async (req, res) => {
-    res.json("logout"); // 추가 구현 cookie 활용해서
+    return res.json("logout"); // 추가 구현 cookie 활용해서 아니 해더
 });
 
-// router.post('/logout', (req, res) => {
-//     req.logout();
-//     req.session.destroy();
-//     res.send('logout ok');
-//   });
+app.use("/challenges", challenges); // auth 추가하기
 
 const server = app.listen(3000, () => {
     console.log(`🚀 Server ready at: http://localhost:3000`);
