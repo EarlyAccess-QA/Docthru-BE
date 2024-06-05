@@ -57,7 +57,7 @@ app.post("/logout", auth, async (req, res) => {
     return res.json("logout"); // 추가 구현 cookie 활용해서 아니 해더
 });
 
-app.use("/challenges", challenges); // auth 추가하기
+app.use("/challenges", challenges);
 
 const server = app.listen(3000, () => {
     console.log(`🚀 Server ready at: http://localhost:3000`);
