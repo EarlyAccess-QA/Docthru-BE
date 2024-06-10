@@ -71,30 +71,32 @@ application.put("/:id", async (req, res) => {
     const id = Number(req.params.id);
     const { status } = req.body;
     let application;
-    const role = res.locals.user.role;
-    if (role !== "ADMIN") return res.status(400).json("NO ADMIN");
+    // const role = res.locals.user.role;
+    // if (role !== "ADMIN") return res.status(400).json("NO ADMIN");
 
-    if (status === "APPLY") {
-        application = await prisma.application.update({
-            where: { id },
-            data: {
-                status,
-                appliedAt: new Date(),
-            },
-        });
-    } else if (status === "REFUSE") {
-        application = await prisma.application.update({
-            where: { id },
-            data: {
-                status,
-                refuseReasons: req.body.reasons,
-                refuseAt: new Date(),
-            },
-        });
+    try {
+        if (status === "APPLY") {
+            application = await prisma.application.update({
+                where: { id },
+                data: {
+                    status,
+                    appliedAt: new Date(),
+                },
+            });
+        } else if (status === "REFUSE") {
+            application = await prisma.application.update({
+                where: { id },
+                data: {
+                    status,
+                    refuseReasons: req.body.reasons,
+                    refuseAt: new Date(),
+                },
+            });
+        }
+        return res.json(application);
+    } catch {
+        return res.status(400).json("wrong id");
     }
-    if (!application) return res.status(400).json("wrong id");
-
-    return res.json(application);
 });
 
 export default application;

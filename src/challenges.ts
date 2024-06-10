@@ -33,21 +33,23 @@ challenges.put("/:id", auth, async (req, res) => {
     const role = res.locals.user.role;
     if (role !== "ADMIN") return res.status(400).json("NO ADMIN");
 
-    const challenge = await prisma.challenge.update({
-        where: { id: id },
-        data: {
-            title,
-            link,
-            field,
-            docType,
-            deadLine,
-            maxParticipants,
-            content,
-        },
-    });
-    if (!challenge) return res.status(400).json("bad request");
-
-    return res.json(challenge);
+    try {
+        const challenge = await prisma.challenge.update({
+            where: { id: id },
+            data: {
+                title,
+                link,
+                field,
+                docType,
+                deadLine,
+                maxParticipants,
+                content,
+            },
+        });
+        return res.json(challenge);
+    } catch {
+        return res.status(400).json("bad request");
+    }
 });
 
 challenges.delete("/:id", auth, async (req, res) => {
@@ -55,11 +57,14 @@ challenges.delete("/:id", auth, async (req, res) => {
     const role = res.locals.user.role;
     if (role !== "ADMIN") return res.status(400).json("NO ADMIN");
 
-    const challenge = await prisma.challenge.delete({
-        where: { id: id },
-    });
-    if (!challenge) return res.status(400).json("error");
-    return res.json("success");
+    try {
+        await prisma.challenge.delete({
+            where: { id: id },
+        });
+        return res.json("success");
+    } catch {
+        return res.status(400).json("wrong id");
+    }
 });
 
 challenges.post("/:id/participation", auth, async (req, res) => {
@@ -73,7 +78,7 @@ challenges.post("/:id/participation", auth, async (req, res) => {
     else if (maxCheck.maxParticipants === maxCheck.participants)
         return res.status(400).json("maxParticipants");
 
-    const doubleCheck = await prisma.participate.findUnique({
+    const doubleCheck = await prisma.participate.findMany({
         where: { userId, challengeId: id },
     });
     if (doubleCheck) return res.status(400).json("already participation");

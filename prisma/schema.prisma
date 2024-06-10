@@ -51,7 +51,7 @@ model Challenge {
   content String
   Participate Participate[]
   Application Application?
-  Work Work?
+  Work Work[]
 } 
 
 enum Field {
@@ -69,22 +69,23 @@ enum DocType {
 
 model Like {
   id Int @id @default(autoincrement())
-  userId Int @unique
+  userId Int 
   User User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Work Work?
+  workId Int 
+  Work Work @relation(fields: [workId], references: [id], onDelete: Cascade)
 }
 
 model Participate {
   id Int @id @default(autoincrement())
-  userId Int @unique
+  userId Int 
   User User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  challengeId Int @unique
+  challengeId Int 
   Challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
 }
 
 model Application {
   id Int @id @default(autoincrement())
-  userId Int @unique
+  userId Int
   User User @relation(fields: [userId], references: [id], onDelete: Cascade)
   challengeId Int @unique
   Challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
@@ -102,9 +103,9 @@ enum Status {
 
 model Feedback {
   id Int @id @default(autoincrement())
-  userId Int @unique
+  userId Int 
   User User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workId Int @unique
+  workId Int 
   Work Work @relation(fields: [workId], references: [id], onDelete: Cascade)
   content String
   createdAt DateTime @default(now())
@@ -112,15 +113,14 @@ model Feedback {
 
 model Work {
   id Int @id @default(autoincrement())
-  userId Int @unique
+  userId Int 
   User User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  challengeId Int @unique
+  challengeId Int 
   Challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
-  likeId Int @unique
-  Like Like @relation(fields: [likeId], references: [id], onDelete: Cascade)
+  Like Like[]
   description String
   lastModifiedAt DateTime @updatedAt
   status Boolean
-  submissionTime DateTime
+  submissionTime DateTime @default(now())
   Feedback Feedback[]
 }

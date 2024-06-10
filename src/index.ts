@@ -6,6 +6,7 @@ import { Secret } from "jsonwebtoken";
 import auth from "./authMiddleware";
 import challenges from "./challenges";
 import works from "./works";
+import users from "./users";
 
 const prisma = new PrismaClient();
 const app = express();
@@ -59,7 +60,8 @@ app.post("/logout", auth, async (req, res) => {
 });
 
 app.use("/challenges", challenges);
-app.use("/works", works);
+app.use("/works", auth, works);
+app.use("/users/me/challenges", auth, users);
 
 const server = app.listen(3000, () => {
     console.log(`🚀 Server ready at: http://localhost:3000`);
