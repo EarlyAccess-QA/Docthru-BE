@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 challenges.get("/", async (req, res) => {
     const challenges = await prisma.challenge.findMany();
-    if (!challenges) res.status(400).json("no data");
+    if (!challenges[0]) res.status(400).json("no data");
 
     return res.json(challenges);
 });
@@ -81,7 +81,7 @@ challenges.post("/:id/participation", auth, async (req, res) => {
     const doubleCheck = await prisma.participate.findMany({
         where: { userId, challengeId: id },
     });
-    if (doubleCheck) return res.status(400).json("already participation");
+    if (doubleCheck[0]) return res.status(400).json("already participation");
 
     const participate = await prisma.participate.create({
         data: {

@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 application.get("/", async (req, res) => {
     const application = await prisma.application.findMany();
-    if (!application) return res.status(400).json("no data");
+    if (!application[0]) return res.status(400).json("no data");
 
     return res.json(application);
 });

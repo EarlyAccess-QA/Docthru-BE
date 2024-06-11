@@ -13,7 +13,7 @@ users.get("/ongoing", async (req, res) => {
             Challenge: true,
         },
     });
-    if (!work) return res.json("no data");
+    if (!work[0]) return res.json("no data");
 
     const challenges = work
         .filter((work) => work.Challenge.progress === false)
@@ -31,7 +31,7 @@ users.get("/completed", async (req, res) => {
             Challenge: true,
         },
     });
-    if (!work) return res.json("no data");
+    if (!work[0]) return res.json("no data");
 
     const challenges = work
         .filter((work) => work.Challenge.progress === true)
@@ -49,7 +49,7 @@ users.get("/application", async (req, res) => {
             Challenge: true,
         },
     });
-    if (!application) return res.json("no data");
+    if (!application[0]) return res.json("no data");
 
     return res.json(application);
 });

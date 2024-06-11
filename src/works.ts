@@ -28,7 +28,7 @@ works.post("/:id", async (req, res) => {
     const userCheck = await prisma.work.findMany({
         where: { challengeId: id, userId },
     });
-    if (userCheck) return res.status(400).json("already work");
+    if (userCheck[0]) return res.status(400).json("already work");
 
     try {
         const work = await prisma.work.create({
@@ -96,23 +96,57 @@ works.post("/:id/likes", async (req, res) => {
     }
 });
 
-// works.post("/:id/feedback", async (req, res) => {
-//     const id = Number(req.params.id);
-//     const userId = Number(res.locals.user.id);
-//     const { comment } = req.body;
+works.post("/:id/feedback", async (req, res) => {
+    const id = Number(req.params.id);
+    const userId = Number(res.locals.user.id);
+    const { comment } = req.body;
 
-//     try {
-//         const feedback = prisma.feedback.create({
-//             data: {
-//                 userId,
-//                 workId: id,
-//                 comment,
-//             },
-//         });
-//         return res.json(feedback);
-//     } catch {
-//         return res.status(400).json("error");
-//     }
-// });
+    const feedbackCheck = await prisma.feedback.findMany({
+        where: { userId, workId: id },
+    });
+    if (feedbackCheck[0]) return res.status(400).json("already feedback");
+    try {
+        const feedback = await prisma.feedback.create({
+            data: {
+                userId,
+                workId: id,
+                comment,
+            },
+        });
+        return res.json(feedback);
+    } catch {
+        return res.status(400).json("error");
+    }
+});
+
+works.put("/:id/feedback", async (req, res) => {
+    const id = Number(req.params.id);
+    const { comment } = req.body;
+
+    try {
+        const feedback = await prisma.feedback.update({
+            where: { id },
+            data: {
+                comment,
+            },
+        });
+        return res.json(feedback);
+    } catch {
+        return res.status(400).json("error");
+    }
+});
+
+works.delete("/:id/feedback", async (req, res) => {
+    const id = Number(req.params.id);
+
+    try {
+        await prisma.feedback.delete({
+            where: { id },
+        });
+        return res.json("success");
+    } catch {
+        return res.status(400).json("error");
+    }
+});
 
 export default works;

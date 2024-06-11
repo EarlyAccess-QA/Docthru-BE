@@ -90,7 +90,7 @@ model Application {
   challengeId Int @unique
   Challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
   status Status @default(WAITING)
-  appliedAt DateTime ?
+  appliedAt DateTime?
   refuseReasons String?
   refuseAt DateTime?
 }
@@ -123,4 +123,5 @@ model Work {
   status Boolean
   submissionTime DateTime @default(now())
   Feedback Feedback[]
+  draft String?
 }
