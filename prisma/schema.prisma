@@ -107,7 +107,7 @@ model Feedback {
   User User @relation(fields: [userId], references: [id], onDelete: Cascade)
   workId Int 
   Work Work @relation(fields: [workId], references: [id], onDelete: Cascade)
-  content String
+  comment String
   createdAt DateTime @default(now())
 }
 

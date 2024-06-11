@@ -54,11 +54,18 @@ app.post("/login", async (req, res) => {
         where: { email, password },
     });
     if (!user) return res.status(400).json({ message: "no user" });
-    let token = jwt.sign({ type: "JWT", id: user.id, role: user.role }, key, {
+    const token = jwt.sign({ type: "JWT", id: user.id, role: user.role }, key, {
         expiresIn: "60m",
         issuer: "accept",
     });
-    return res.status(200).json(token);
+    return res
+        .status(200)
+        .json({
+            accessToken: token,
+            userRole: user.role,
+            userGrade: user.grade,
+            nickName: user.nickName,
+        });
 });
 
 app.post("/logout", auth, async (req, res) => {

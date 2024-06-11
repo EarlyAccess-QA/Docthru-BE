@@ -64,4 +64,55 @@ works.put("/:id", async (req, res) => {
     }
 });
 
+works.delete("/:id", async (req, res) => {
+    const id = Number(req.params.id);
+
+    try {
+        await prisma.work.delete({
+            where: { id },
+        });
+    } catch {
+        return res.status(400).json("wrong id");
+    }
+
+    return res.json("success");
+});
+
+works.post("/:id/likes", async (req, res) => {
+    const id = Number(req.params.id);
+    const userId = Number(res.locals.user.id);
+
+    const likeCheck = await prisma.like.findMany({
+        where: { userId, workId: id },
+    });
+    if (likeCheck[0]) return res.status(400).json("already like");
+    try {
+        const like = await prisma.like.create({
+            data: { userId, workId: id },
+        });
+        return res.json(like);
+    } catch {
+        return res.status(400).json("error");
+    }
+});
+
+// works.post("/:id/feedback", async (req, res) => {
+//     const id = Number(req.params.id);
+//     const userId = Number(res.locals.user.id);
+//     const { comment } = req.body;
+
+//     try {
+//         const feedback = prisma.feedback.create({
+//             data: {
+//                 userId,
+//                 workId: id,
+//                 comment,
+//             },
+//         });
+//         return res.json(feedback);
+//     } catch {
+//         return res.status(400).json("error");
+//     }
+// });
+
 export default works;

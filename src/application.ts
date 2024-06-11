@@ -71,8 +71,8 @@ application.put("/:id", async (req, res) => {
     const id = Number(req.params.id);
     const { status } = req.body;
     let application;
-    // const role = res.locals.user.role;
-    // if (role !== "ADMIN") return res.status(400).json("NO ADMIN");
+    const role = res.locals.user.role;
+    if (role !== "ADMIN") return res.status(400).json("NO ADMIN");
 
     try {
         if (status === "APPLY") {
