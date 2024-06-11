@@ -64,6 +64,24 @@ works.put("/:id", async (req, res) => {
     }
 });
 
+works.patch("/:id/draft", async (req, res) => {
+    const id = Number(req.params.id);
+    const userId = Number(res.locals.user.id);
+    const { description } = req.body;
+
+    try {
+        const work = await prisma.work.update({
+            where: { id, userId },
+            data: {
+                draft: description,
+            },
+        });
+        return res.json(work);
+    } catch {
+        return res.status(400).json("wrong id");
+    }
+});
+
 works.delete("/:id", async (req, res) => {
     const id = Number(req.params.id);
 
