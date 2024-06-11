@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import express from "express";
+import cors from "cors";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 import { Secret } from "jsonwebtoken";
@@ -11,6 +12,7 @@ import users from "./users";
 const prisma = new PrismaClient();
 const app = express();
 app.use(express.json());
+app.use(cors({ origin: "*" }));
 const key = process.env.SECRET_KEY as Secret;
 
 app.post("/users", async (req, res) => {
