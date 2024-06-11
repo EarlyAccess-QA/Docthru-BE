@@ -55,17 +55,15 @@ app.post("/login", async (req, res) => {
     });
     if (!user) return res.status(400).json({ message: "no user" });
     const token = jwt.sign({ type: "JWT", id: user.id, role: user.role }, key, {
-        expiresIn: "60m",
+        expiresIn: "1d",
         issuer: "accept",
     });
-    return res
-        .status(200)
-        .json({
-            accessToken: token,
-            userRole: user.role,
-            userGrade: user.grade,
-            nickName: user.nickName,
-        });
+    return res.status(200).json({
+        accessToken: token,
+        userRole: user.role,
+        userGrade: user.grade,
+        nickName: user.nickName,
+    });
 });
 
 app.post("/logout", auth, async (req, res) => {
