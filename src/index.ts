@@ -11,8 +11,12 @@ import users from "./users";
 
 const prisma = new PrismaClient();
 const app = express();
+const allowedOrigins = ["http://localhost:3000"];
+const options: cors.CorsOptions = {
+    origin: allowedOrigins,
+};
+app.use(cors(options));
 app.use(express.json());
-app.use(cors({ origin: "*" }));
 const key = process.env.SECRET_KEY as Secret;
 
 app.post("/users", async (req, res) => {
