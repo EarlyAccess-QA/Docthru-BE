@@ -37,13 +37,18 @@ app.post("/users", async (req, res) => {
             message: "wrong nickname",
         });
 
-    await prisma.user.create({
-        data: {
-            nickName,
-            email,
-            password,
-        },
-    });
+    try {
+        await prisma.user.create({
+            data: {
+                nickName,
+                email,
+                password,
+            },
+        });
+    } catch {
+        return res.status(400).json("error");
+    }
+
     return res.status(200).json("success");
 });
 

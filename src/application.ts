@@ -16,36 +16,34 @@ application.post("/", async (req, res) => {
     const { title, link, field, docType, deadLine, maxParticipants, content } =
         req.body;
 
-    const challenge = await prisma.challenge.create({
-        data: {
-            title,
-            link,
-            field,
-            docType,
-            deadLine,
-            maxParticipants,
-            content,
-        },
-    });
-    if (!challenge) return res.status(400).json("bad request");
-
-    const application = await prisma.application.create({
-        data: {
-            userId,
-            challengeId: challenge.id,
-        },
-    });
-    if (!application) return res.status(400).json("error");
-
-    const participate = await prisma.participate.create({
-        data: {
-            userId,
-            challengeId: challenge.id,
-        },
-    });
-    if (!participate) return res.status(400).json("error");
-
-    return res.json(application);
+    try {
+        const challenge = await prisma.challenge.create({
+            data: {
+                title,
+                link,
+                field,
+                docType,
+                deadLine,
+                maxParticipants,
+                content,
+            },
+        });
+        const application = await prisma.application.create({
+            data: {
+                userId,
+                challengeId: challenge.id,
+            },
+        });
+        await prisma.participate.create({
+            data: {
+                userId,
+                challengeId: challenge.id,
+            },
+        });
+        return res.json(application);
+    } catch {
+        return res.status(400).json("bad request");
+    }
 });
 
 application.delete("/:id", async (req, res) => {
@@ -59,10 +57,13 @@ application.delete("/:id", async (req, res) => {
     else if (application.userId !== userId)
         return res.status(400).json("wrong user");
 
-    const challenge = await prisma.challenge.delete({
-        where: { id: application.challengeId },
-    });
-    if (!challenge) return res.status(400).json("error");
+    try {
+        await prisma.challenge.delete({
+            where: { id: application.challengeId },
+        });
+    } catch {
+        return res.status(400).json("error");
+    }
 
     return res.json("success");
 });

@@ -70,6 +70,7 @@ challenges.delete("/:id", auth, async (req, res) => {
 challenges.post("/:id/participation", auth, async (req, res) => {
     const id = Number(req.params.id);
     const userId = res.locals.user.id;
+    let participate;
 
     const maxCheck = await prisma.challenge.findUnique({
         where: { id },
@@ -83,19 +84,25 @@ challenges.post("/:id/participation", auth, async (req, res) => {
     });
     if (doubleCheck[0]) return res.status(400).json("already participation");
 
-    const participate = await prisma.participate.create({
-        data: {
-            userId,
-            challengeId: id,
-        },
-    });
-    if (!participate) return res.status(400).json("error");
+    try {
+        participate = await prisma.participate.create({
+            data: {
+                userId,
+                challengeId: id,
+            },
+        });
+    } catch {
+        return res.status(400).json("error");
+    }
 
-    const challenge = await prisma.challenge.update({
-        where: { id },
-        data: { participants: { increment: 1 } },
-    });
-    if (!challenge) return res.status(400).json("error");
+    try {
+        await prisma.challenge.update({
+            where: { id },
+            data: { participants: { increment: 1 } },
+        });
+    } catch {
+        return res.status(400).json("error");
+    }
 
     return res.json(participate);
 });
